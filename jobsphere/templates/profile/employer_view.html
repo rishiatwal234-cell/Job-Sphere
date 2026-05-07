@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'My Company' if not public else user.name }} - JobSphere{% endblock %}
+
+{% block content %}
+<section class="profile-section employer-profile">
+    <div class="container">
+        {% set profile = user.employer_profile if user else current_user.employer_profile %}
+        
+        <div class="profile-header">
+            {% if profile.logo_url %}
+                <img src="{{ url_for('uploaded_file', filename=profile.logo_url) }}" alt="{{ profile.company_name }}" class="company-logo">
+            {% else %}
+                <div class="logo-placeholder">{{ profile.company_name[0] }}</div>
+            {% endif %}
+            <div class="profile-info">
+                <h1>{{ profile.company_name }}</h1>
+                {% if profile.website %}
+                    <a href="{{ profile.website }}" target="_blank" class="website-link">{{ profile.website }}</a>
+                {% endif %}
+                {% if profile.location %}
+                    <span class="location">📍 {{ profile.location }}</span>
+                {% endif %}
+                {% if profile.industry %}
+                    <span class="industry">{{ profile.industry }}</span>
+                {% endif %}
+            </div>
+            {% if not public %}
+                <a href="{{ url_for('edit_employer_profile') }}" class="btn btn-primary">Edit Profile</a>
+            {% endif %}
+        </div>
+
+        {% if profile %}
+            <div class="profile-content">
+                {% if profile.description %}
+                <div class="profile-section">
+                    <h2>About</h2>
+                    <p>{{ profile.description }}</p>
+                </div>
+                {% endif %}
+
+                <div class="profile-section">
+                    <h2>Company Info</h2>
+                    <div class="info-grid">
+                        {% if profile.company_size %}
+                        <div class="info-item">
+                            <span class="label">Company Size:</span>
+                            <span class="value">{{ profile.company_size }}</span>
+                        </div>
+                        {% endif %}
+                        {% if profile.industry %}
+                        <div class="info-item">
+                            <span class="label">Industry:</span>
+                            <span class="value">{{ profile.industry }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if not public %}
+                <div class="profile-section">
+                    <h2>Active Listings</h2>
+                    <p>You have <strong>{{ current_user.jobs|selectattr('status', 'equalto', 'active')|list|length }}</strong> active job postings.</p>
+                    <a href="{{ url_for('employer_jobs') }}" class="btn btn-outline">View Jobs</a>
+                </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <p class="empty-state">Company profile not yet completed.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

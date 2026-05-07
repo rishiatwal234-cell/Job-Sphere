@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Join JobSphere - Create Your Account{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-bg">
+            <div class="floating-elements">
+                <div class="floating-circle circle-1"></div>
+                <div class="floating-circle circle-2"></div>
+                <div class="floating-circle circle-3"></div>
+            </div>
+        </div>
+        <div class="auth-form">
+            <div class="auth-header">
+                <h1>Join JobSphere</h1>
+                <p>Your journey to new opportunities starts here</p>
+            </div>
+
+            <form method="POST" class="register-form">
+                {{ form.hidden_tag() }}
+
+                <div class="role-selector">
+                    <label class="role-option {{ 'selected' if form.role.data == 'seeker' else '' }}" for="seeker">
+                        <input type="radio" id="seeker" name="role" value="seeker" {{ 'checked' if form.role.data == 'seeker' else '' }}>
+                        <div class="role-card">
+                            <i data-lucide="user"></i>
+                            <h3>Job Seeker</h3>
+                            <p>Find your next great opportunity</p>
+                        </div>
+                    </label>
+                    <label class="role-option {{ 'selected' if form.role.data == 'employer' else '' }}" for="employer">
+                        <input type="radio" id="employer" name="role" value="employer" {{ 'checked' if form.role.data == 'employer' else '' }}>
+                        <div class="role-card">
+                            <i data-lucide="building"></i>
+                            <h3>Employer</h3>
+                            <p>Find amazing talent for your team</p>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    {{ form.name.label }}
+                    {{ form.name(class="form-control") }}
+                    {% if form.name.errors %}
+                        <div class="form-errors">
+                            {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control") }}
+                    {% if form.email.errors %}
+                        <div class="form-errors">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group employer-field" style="display: none;">
+                    {{ form.company_name.label }}
+                    {{ form.company_name(class="form-control") }}
+                    {% if form.company_name.errors %}
+                        <div class="form-errors">
+                            {% for error in form.company_name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.password.label }}
+                    {{ form.password(class="form-control") }}
+                    <div class="password-strength">
+                        <div class="strength-bar">
+                            <div class="strength-fill"></div>
+                        </div>
+                        <span class="strength-text">Password strength</span>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="form-errors">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.confirm_password.label }}
+                    {{ form.confirm_password(class="form-control") }}
+                    {% if form.confirm_password.errors %}
+                        <div class="form-errors">
+                            {% for error in form.confirm_password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Role selector functionality
+    const roleOptions = document.querySelectorAll('.role-option');
+    const employerField = document.querySelector('.employer-field');
+
+    roleOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            roleOptions.forEach(opt => opt.classList.remove('selected'));
+            option.classList.add('selected');
+            option.querySelector('input').checked = true;
+
+            if (option.querySelector('input').value === 'employer') {
+                employerField.style.display = 'block';
+            } else {
+                employerField.style.display = 'none';
+            }
+        });
+    });
+
+    // Password strength indicator
+    const passwordInput = document.querySelector('input[name="password"]');
+    const strengthBar = document.querySelector('.strength-fill');
+    const strengthText = document.querySelector('.strength-text');
+
+    passwordInput.addEventListener('input', () => {
+        const password = passwordInput.value;
+        let strength = 0;
+
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        const percentage = (strength / 5) * 100;
+        strengthBar.style.width = percentage + '%';
+
+        const colors = ['#ff4d4d', '#ffa500', '#ffff00', '#9acd32', '#00ff00'];
+        strengthBar.style.backgroundColor = colors[strength - 1] || '#ff4d4d';
+
+        const texts = ['Very weak', 'Weak', 'Fair', 'Good', 'Strong'];
+        strengthText.textContent = texts[strength - 1] || 'Very weak';
+    });
+</script>
+{% endblock %}

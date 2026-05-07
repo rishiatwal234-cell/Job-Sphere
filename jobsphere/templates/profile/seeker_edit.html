@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - JobSphere{% endblock %}
+
+{% block content %}
+<section class="edit-profile-section">
+    <div class="container">
+        <h1>Edit Your Profile</h1>
+
+        <form method="POST" enctype="multipart/form-data" class="profile-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-section">
+                <h2>Basic Information</h2>
+
+                <div class="form-group">
+                    {{ form.bio.label }}
+                    {{ form.bio(class="form-control", rows="4", placeholder="Tell us about yourself...") }}
+                    {% if form.bio.errors %}
+                        <div class="form-errors">
+                            {% for error in form.bio.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.location.label }}
+                    {{ form.location(class="form-control", placeholder="City, Country") }}
+                    {% if form.location.errors %}
+                        <div class="form-errors">
+                            {% for error in form.location.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Professional Information</h2>
+
+                <div class="form-group">
+                    {{ form.skills.label }}
+                    {{ form.skills(class="form-control", placeholder="Python, JavaScript, React (comma-separated)") }}
+                    {% if form.skills.errors %}
+                        <div class="form-errors">
+                            {% for error in form.skills.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.experience.label }}
+                    {{ form.experience(class="form-control", rows="4", placeholder="Describe your work experience...") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.education.label }}
+                    {{ form.education(class="form-control", rows="4", placeholder="Your educational background...") }}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Links & Documents</h2>
+
+                <div class="form-group">
+                    {{ form.resume.label }}
+                    {{ form.resume(class="form-control") }}
+                    <small>PDF format, max 5MB</small>
+                </div>
+
+                <div class="form-group">
+                    {{ form.linkedin_url.label }}
+                    {{ form.linkedin_url(class="form-control", placeholder="https://linkedin.com/in/yourprofile") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.portfolio_url.label }}
+                    {{ form.portfolio_url(class="form-control", placeholder="https://yourportfolio.com") }}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">Save Changes</button>
+                <a href="{{ url_for('seeker_dashboard') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

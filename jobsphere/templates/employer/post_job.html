@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Post a Job - JobSphere{% endblock %}
+
+{% block content %}
+<section class="post-job-section">
+    <div class="container">
+        <h1>Post a New Job</h1>
+
+        <form method="POST" class="job-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-section">
+                <h2>Job Details</h2>
+
+                <div class="form-group">
+                    {{ form.title.label }}
+                    {{ form.title(class="form-control", placeholder="e.g., Senior Python Developer") }}
+                    {% if form.title.errors %}
+                        <div class="form-errors">{% for error in form.title.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.description.label }}
+                    {{ form.description(class="form-control", rows="6", placeholder="Describe the job role and responsibilities...") }}
+                    {% if form.description.errors %}
+                        <div class="form-errors">{% for error in form.description.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.requirements.label }}
+                    {{ form.requirements(class="form-control", rows="4", placeholder="List key requirements...") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.skills_required.label }}
+                    {{ form.skills_required(class="form-control", placeholder="Python, JavaScript, React (comma-separated)") }}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Job Type & Location</h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.job_type.label }}
+                        {{ form.job_type(class="form-control") }}
+                        {% if form.job_type.errors %}
+                            <div class="form-errors">{% for error in form.job_type.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.experience_level.label }}
+                        {{ form.experience_level(class="form-control") }}
+                        {% if form.experience_level.errors %}
+                            <div class="form-errors">{% for error in form.experience_level.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ form.location.label }}
+                    {{ form.location(class="form-control", placeholder="City or 'Remote'") }}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Compensation</h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.salary_min.label }}
+                        {{ form.salary_min(class="form-control", type="number") }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.salary_max.label }}
+                        {{ form.salary_max(class="form-control", type="number") }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Application Settings</h2>
+
+                <div class="form-group">
+                    {{ form.deadline.label }}
+                    {{ form.deadline(class="form-control", type="date") }}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">Post Job</button>
+                <a href="{{ url_for('employer_dashboard') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

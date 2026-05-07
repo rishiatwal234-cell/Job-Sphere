@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'My Profile' if not public else current_user.name }} - JobSphere{% endblock %}
+
+{% block content %}
+<section class="profile-section seeker-profile">
+    <div class="container">
+        {% set profile = user.seeker_profile if user else current_user.seeker_profile %}
+        
+        <div class="profile-header">
+            <img src="{% if user.avatar_url %}{{ url_for('uploaded_file', filename=user.avatar_url) }}{% else %}https://via.placeholder.com/120x120?text={{ user.name[0] }}{% endif %}" alt="{{ user.name }}" class="profile-avatar">
+            <div class="profile-info">
+                <h1>{{ user.name }}</h1>
+                {% if profile %}
+                    <p class="bio">{{ profile.bio }}</p>
+                    {% if profile.location %}
+                        <span class="location">📍 {{ profile.location }}</span>
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% if not public %}
+                <a href="{{ url_for('seeker_profile_edit') }}" class="btn btn-primary">Edit Profile</a>
+            {% endif %}
+        </div>
+
+        {% if profile %}
+            <div class="profile-content">
+                {% if profile.skills %}
+                <div class="profile-section">
+                    <h2>Skills</h2>
+                    <div class="skills-list">
+                        {% for skill in profile.skills.split(',') %}
+                            <span class="skill-tag">{{ skill.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile.experience %}
+                <div class="profile-section">
+                    <h2>Experience</h2>
+                    <p>{{ profile.experience }}</p>
+                </div>
+                {% endif %}
+
+                {% if profile.education %}
+                <div class="profile-section">
+                    <h2>Education</h2>
+                    <p>{{ profile.education }}</p>
+                </div>
+                {% endif %}
+
+                <div class="profile-links">
+                    {% if profile.resume_url %}
+                        <a href="{{ url_for('uploaded_file', filename=profile.resume_url) }}" class="btn btn-outline">Download Resume</a>
+                    {% endif %}
+                    {% if profile.linkedin_url %}
+                        <a href="{{ profile.linkedin_url }}" target="_blank" class="btn btn-outline">LinkedIn</a>
+                    {% endif %}
+                    {% if profile.portfolio_url %}
+                        <a href="{{ profile.portfolio_url }}" target="_blank" class="btn btn-outline">Portfolio</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <p class="empty-state">Profile not yet completed.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

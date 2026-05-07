@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Apply for {{ job.title }} - JobSphere{% endblock %}
+
+{% block content %}
+<section class="apply-section">
+    <div class="container">
+        <div class="apply-card">
+            <h1>Apply for {{ job.title }}</h1>
+            <p class="subtitle">at {{ job.company }}</p>
+
+            <form method="POST" enctype="multipart/form-data" class="apply-form">
+                {{ form.hidden_tag() }}
+
+                <div class="form-section">
+                    <h3>Your Application</h3>
+
+                    <div class="form-group">
+                        {{ form.cover_letter.label }}
+                        {{ form.cover_letter(class="form-control", rows="8", placeholder="Tell us why you're a great fit for this role...") }}
+                        {% if form.cover_letter.errors %}
+                            <div class="form-errors">
+                                {% for error in form.cover_letter.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.resume.label }}
+                        {{ form.resume(class="form-control") }}
+                        <small>Accepted formats: PDF (max 5MB)</small>
+                        {% if form.resume.errors %}
+                            <div class="form-errors">
+                                {% for error in form.resume.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg">Submit Application</button>
+                    <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+
+            <div class="job-preview">
+                <h3>Job Summary</h3>
+                <div class="preview-item">
+                    <span class="label">Title:</span>
+                    <span class="value">{{ job.title }}</span>
+                </div>
+                <div class="preview-item">
+                    <span class="label">Company:</span>
+                    <span class="value">{{ job.company }}</span>
+                </div>
+                <div class="preview-item">
+                    <span class="label">Location:</span>
+                    <span class="value">{{ job.location or 'Remote' }}</span>
+                </div>
+                {% if job.salary_min and job.salary_max %}
+                <div class="preview-item">
+                    <span class="label">Salary:</span>
+                    <span class="value">{{ job.salary_currency }} {{ job.salary_min|number_format }} - {{ job.salary_max|number_format }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

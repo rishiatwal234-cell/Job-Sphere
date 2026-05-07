@@ -1,0 +1,53 @@
+/* Light Theme (Nature) */
+:root[data-theme="light"] {
+    --bg-primary: #FAFAF7;
+    --bg-secondary: #F2F7F0;
+    --bg-card: #FFFFFF;
+    --accent-primary: #2E7D52;
+    --accent-primary-dark: #25633f;
+    --accent-secondary: #5B8DB8;
+    --accent-secondary-dark: #4a7194;
+    --text-primary: #1A2E1A;
+    --text-secondary: #5A7060;
+    --border: rgba(46, 125, 82, 0.15);
+}
+
+/* Dark Theme (Space) */
+:root[data-theme="dark"] {
+    --bg-primary: #080818;
+    --bg-secondary: #0f0f2a;
+    --bg-card: #14142e;
+    --accent-primary: #7C6FFF;
+    --accent-primary-dark: #6a5ce6;
+    --accent-secondary: #00D4AA;
+    --accent-secondary-dark: #00b894;
+    --text-primary: #E8E8F0;
+    --text-secondary: #8080A0;
+    --border: rgba(124, 111, 255, 0.2);
+}
+
+/* Glassmorphism */
+.glass {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(46, 125, 82, 0.12);
+}
+
+:root[data-theme="dark"] .glass {
+    background: rgba(20, 20, 46, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(124, 111, 255, 0.15);
+}
+
+/* Theme Transitions */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

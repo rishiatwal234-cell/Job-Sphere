@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} - JobSphere{% endblock %}
+
+{% block content %}
+<section class="job-detail">
+    <div class="container">
+        <div class="job-header">
+            <div class="job-info">
+                <h1>{{ job.title }}</h1>
+                <p class="company">{{ job.company }}</p>
+                <div class="job-meta">
+                    <span class="location">📍 {{ job.location or 'Remote' }}</span>
+                    <span class="job-type">{{ job.job_type.replace('-', ' ').title() }}</span>
+                    <span class="experience">{{ job.experience_level.title() }} Level</span>
+                </div>
+            </div>
+            {% if current_user.is_authenticated and current_user.role == 'seeker' %}
+                <div class="job-actions">
+                    <a href="{{ url_for('apply_job', job_id=job.id) }}" class="btn btn-primary">Apply Now</a>
+                    <button class="btn btn-outline save-job-btn" data-job-id="{{ job.id }}">Save Job</button>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="job-content">
+            <div class="job-main">
+                <div class="section">
+                    <h2>About This Job</h2>
+                    <p>{{ job.description }}</p>
+                </div>
+
+                {% if job.requirements %}
+                <div class="section">
+                    <h2>Requirements</h2>
+                    <p>{{ job.requirements }}</p>
+                </div>
+                {% endif %}
+
+                {% if job.skills_required %}
+                <div class="section">
+                    <h2>Required Skills</h2>
+                    <div class="skills-list">
+                        {% for skill in job.skills_required.split(',') %}
+                            <span class="skill-tag">{{ skill.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if current_user.is_authenticated and current_user.role == 'seeker' and skill_match %}
+                <div class="section highlight">
+                    <h3>Your Match: {{ skill_match }}%</h3>
+                    <p>Based on your profile skills</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="job-sidebar">
+                <div class="sidebar-card">
+                    <h3>Job Details</h3>
+                    <div class="detail-item">
+                        <span class="label">Experience Level:</span>
+                        <span class="value">{{ job.experience_level.title() }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Job Type:</span>
+                        <span class="value">{{ job.job_type.replace('-', ' ').title() }}</span>
+                    </div>
+                    {% if job.salary_min and job.salary_max %}
+                    <div class="detail-item">
+                        <span class="label">Salary:</span>
+                        <span class="value">{{ job.salary_currency }} {{ job.salary_min|number_format }} - {{ job.salary_max|number_format }}</span>
+                    </div>
+                    {% endif %}
+                    {% if job.deadline %}
+                    <div class="detail-item">
+                        <span class="label">Application Deadline:</span>
+                        <span class="value">{{ job.deadline.strftime('%b %d, %Y') }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="detail-item">
+                        <span class="label">Posted:</span>
+                        <span class="value">{{ job.posted_at.strftime('%b %d, %Y') }}</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <h3>Company</h3>
+                    <p>{{ job.company }}</p>
+                    <p class="location">{{ job.location or 'Remote' }}</p>
+                </div>
+
+                {% if current_user.is_authenticated and current_user.role == 'seeker' %}
+                <div class="sidebar-card highlight">
+                    <h3>Ready to Apply?</h3>
+                    <p>Share your skills and experience to get noticed by employers.</p>
+                    <a href="{{ url_for('apply_job', job_id=job.id) }}" class="btn btn-primary btn-full">Apply Now</a>
+                </div>
+                {% elif not current_user.is_authenticated %}
+                <div class="sidebar-card highlight">
+                    <h3>Want to Apply?</h3>
+                    <p>Create an account to start your career journey.</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-full">Sign Up</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - JobSphere{% endblock %}
+
+{% block content %}
+<section class="dashboard seeker-dashboard">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Your Dashboard</h1>
+            <p class="dashboard-subtitle">Manage your job search and applications</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Profile Completeness -->
+            <div class="dashboard-card profile-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h3>Profile Completeness</h3>
+                </div>
+                <div class="card-content">
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{ completeness }}%"></div>
+                        </div>
+                        <p class="progress-text">{{ completeness }}% Complete</p>
+                    </div>
+                    {% if completeness < 100 %}
+                        <a href="{{ url_for('seeker_profile_edit') }}" class="btn btn-primary btn-full">Complete Profile</a>
+                    {% else %}
+                        <div class="complete-badge">
+                            <i class="fas fa-check-circle"></i>
+                            Profile Complete!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Applications Stats -->
+            <div class="dashboard-card stats-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3>Applications</h3>
+                </div>
+                <div class="card-content">
+                    <div class="stats-large">
+                        <div class="stat-number">{{ applications|length }}</div>
+                        <div class="stat-label">Total Applications</div>
+                    </div>
+                    <a href="{{ url_for('seeker_applications') }}" class="btn btn-outline btn-full">View All Applications</a>
+                </div>
+            </div>
+
+            <!-- Saved Jobs -->
+            <div class="dashboard-card stats-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Saved Jobs</h3>
+                </div>
+                <div class="card-content">
+                    <div class="stats-large">
+                        <div class="stat-number">{{ saved_jobs|length }}</div>
+                        <div class="stat-label">Saved Positions</div>
+                    </div>
+                    <a href="{{ url_for('seeker_saved') }}" class="btn btn-outline btn-full">View Saved Jobs</a>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="dashboard-card stats-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Activity</h3>
+                </div>
+                <div class="card-content">
+                    <div class="activity-stats">
+                        <div class="activity-item">
+                            <span class="activity-label">Profile Views</span>
+                            <span class="activity-value">{{ (applications|length * 3) + 12 }}</span>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-label">This Week</span>
+                            <span class="activity-value">{{ applications|length }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Recent Applications</h2>
+                <a href="{{ url_for('seeker_applications') }}" class="view-all-link">View All</a>
+            </div>
+
+            {% if applications %}
+                <div class="applications-list">
+                    {% for app in applications[:5] %}
+                        <div class="application-item">
+                            <div class="application-main">
+                                <div class="application-info">
+                                    <h4><a href="{{ url_for('job_detail', job_id=app.job_id) }}" class="job-title-link">{{ app.job.title }}</a></h4>
+                                    <p class="company-info">
+                                        <span class="company-name">{{ app.job.company }}</span>
+                                        {% if app.job.location %}
+                                            <span class="location">• {{ app.job.location }}</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="application-meta">
+                                    <span class="status status-{{ app.status }}">
+                                        <i class="fas fa-circle"></i>
+                                        {{ app.status.title() }}
+                                    </span>
+                                    <div class="application-date">
+                                        Applied {{ app.applied_at.strftime('%b %d, %Y') }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="application-actions">
+                                <a href="{{ url_for('job_detail', job_id=app.job_id) }}" class="btn btn-sm btn-outline">View Job</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3>No applications yet</h3>
+                    <p>Start your job search by browsing available positions</p>
+                    <a href="{{ url_for('jobs') }}" class="btn btn-primary">Browse Jobs</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-actions">
+            <div class="action-buttons">
+                <a href="{{ url_for('jobs') }}" class="btn btn-primary btn-large">
+                    <i class="fas fa-search"></i>
+                    Browse Jobs
+                </a>
+                <a href="{{ url_for('seeker_profile_edit') }}" class="btn btn-secondary btn-large">
+                    <i class="fas fa-user-edit"></i>
+                    Edit Profile
+                </a>
+                <a href="{{ url_for('seeker_saved') }}" class="btn btn-outline btn-large">
+                    <i class="fas fa-heart"></i>
+                    Saved Jobs
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

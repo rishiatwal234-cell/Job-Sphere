@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Employer Dashboard - JobSphere{% endblock %}
+
+{% block content %}
+<section class="dashboard employer-dashboard">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Employer Dashboard</h1>
+            <p class="dashboard-subtitle">Manage your job postings and review applications</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Active Jobs -->
+            <div class="dashboard-card stats-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3>Active Jobs</h3>
+                </div>
+                <div class="card-content">
+                    <div class="stats-large">
+                        <div class="stat-number">{{ jobs|selectattr('status', 'equalto', 'active')|list|length }}</div>
+                        <div class="stat-label">Posted Jobs</div>
+                    </div>
+                    <a href="{{ url_for('employer_jobs') }}" class="btn btn-outline btn-full">Manage Jobs</a>
+                </div>
+            </div>
+
+            <!-- Total Applications -->
+            <div class="dashboard-card stats-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Applications</h3>
+                </div>
+                <div class="card-content">
+                    <div class="stats-large">
+                        <div class="stat-number">{{ applications|length }}</div>
+                        <div class="stat-label">Total Received</div>
+                    </div>
+                    <a href="{{ url_for('employer_applications') }}" class="btn btn-outline btn-full">Review Applications</a>
+                </div>
+            </div>
+
+            <!-- Job Performance -->
+            <div class="dashboard-card stats-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Performance</h3>
+                </div>
+                <div class="card-content">
+                    <div class="performance-stats">
+                        <div class="performance-item">
+                            <span class="performance-label">Total Views</span>
+                            <span class="performance-value">{{ jobs|sum(attribute='views_count') if jobs else 0 }}</span>
+                        </div>
+                        <div class="performance-item">
+                            <span class="performance-label">Avg. Applications</span>
+                            <span class="performance-value">{{ "%.1f"|format(applications|length / jobs|length if jobs|length > 0 else 0) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-card action-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <h3>Quick Actions</h3>
+                </div>
+                <div class="card-content">
+                    <div class="quick-actions">
+                        <a href="{{ url_for('post_job') }}" class="btn btn-primary btn-full">
+                            <i class="fas fa-plus"></i>
+                            Post New Job
+                        </a>
+                        <a href="{{ url_for('employer_profile_edit') }}" class="btn btn-outline btn-full">
+                            <i class="fas fa-building"></i>
+                            Edit Company Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Jobs -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Your Jobs</h2>
+                <a href="{{ url_for('employer_jobs') }}" class="view-all-link">View All</a>
+            </div>
+
+            {% if jobs %}
+                <div class="jobs-list">
+                    {% for job in jobs[:5] %}
+                        <div class="job-item">
+                            <div class="job-main">
+                                <div class="job-info">
+                                    <h4 class="job-title">{{ job.title }}</h4>
+                                    <p class="job-location">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ job.location or 'Remote' }}
+                                    </p>
+                                    <div class="job-meta">
+                                        <span class="job-type">{{ job.job_type.replace('-', ' ').title() }}</span>
+                                        <span class="job-status status-{{ job.status }}">
+                                            <i class="fas fa-circle"></i>
+                                            {{ job.status.title() }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="job-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-value">{{ job.views_count }}</div>
+                                        <div class="stat-label">Views</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">{{ job.applications|length }}</div>
+                                        <div class="stat-label">Applications</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">{{ job.applications|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+                                        <div class="stat-label">Pending</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="job-actions">
+                                <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-sm btn-outline">
+                                    <i class="fas fa-eye"></i>
+                                    View
+                                </a>
+                                <a href="{{ url_for('edit_job', job_id=job.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                </a>
+                                <a href="{{ url_for('employer_applications', job_id=job.id) }}" class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-users"></i>
+                                    Apps
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3>No jobs posted yet</h3>
+                    <p>Create your first job posting to start attracting candidates</p>
+                    <a href="{{ url_for('post_job') }}" class="btn btn-primary">Post Your First Job</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Applications -->
+        {% if applications %}
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Recent Applications</h2>
+                <a href="{{ url_for('employer_applications') }}" class="view-all-link">View All</a>
+            </div>
+
+            <div class="applications-list">
+                {% for app in applications[:3] %}
+                    <div class="application-item">
+                        <div class="application-main">
+                            <div class="application-info">
+                                <h4><a href="{{ url_for('job_detail', job_id=app.job_id) }}" class="job-title-link">{{ app.job.title }}</a></h4>
+                                <p class="applicant-info">
+                                    <span class="applicant-name">{{ app.seeker.user.name }}</span>
+                                    <span class="application-date">Applied {{ app.applied_at.strftime('%b %d, %Y') }}</span>
+                                </p>
+                            </div>
+                            <div class="application-status">
+                                <span class="status status-{{ app.status }}">
+                                    <i class="fas fa-circle"></i>
+                                    {{ app.status.title() }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="application-actions">
+                            <a href="{{ url_for('employer_application_detail', application_id=app.id) }}" class="btn btn-sm btn-outline">Review</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="dashboard-actions">
+            <div class="action-buttons">
+                <a href="{{ url_for('post_job') }}" class="btn btn-primary btn-large">
+                    <i class="fas fa-plus"></i>
+                    Post New Job
+                </a>
+                <a href="{{ url_for('employer_jobs') }}" class="btn btn-secondary btn-large">
+                    <i class="fas fa-briefcase"></i>
+                    Manage Jobs
+                </a>
+                <a href="{{ url_for('employer_applications') }}" class="btn btn-outline btn-large">
+                    <i class="fas fa-users"></i>
+                    Review Applications
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

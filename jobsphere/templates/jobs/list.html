@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="jobs-list">
+    <div class="container">
+        <div class="jobs-header">
+            <h1>Find Your Dream Job</h1>
+            <p class="jobs-subtitle">Discover opportunities that match your skills and career goals</p>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="jobs-controls">
+            <form method="get" action="{{ url_for('jobs') }}" class="search-form">
+                <div class="search-input-group">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="q" value="{{ request.args.get('q','') }}" placeholder="Search jobs, companies, or keywords..." class="search-input" />
+                    <button type="submit" class="search-btn">Search</button>
+                </div>
+            </form>
+
+            <div class="filter-summary">
+                {% if request.args.get('q') %}
+                    <span class="filter-tag">
+                        Search: "{{ request.args.get('q') }}"
+                        <a href="{{ url_for('jobs') }}" class="filter-remove">&times;</a>
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Results Summary -->
+        {% set items = jobs.items if jobs.items is defined else jobs %}
+        <div class="results-summary">
+            <p class="results-count">
+                <strong>{{ items|length }}</strong> job{{ 's' if items|length != 1 else '' }} found
+                {% if request.args.get('q') %}
+                    for "{{ request.args.get('q') }}"
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Jobs Grid -->
+        <div class="jobs-grid">
+            {% for job in items %}
+                <article class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-title-section">
+                            <h3><a href="{{ url_for('job_detail', job_id=job.id) }}" class="job-title-link">{{ job.title }}</a></h3>
+                            <div class="job-meta">
+                                <span class="job-type">{{ job.job_type.replace('-', ' ').title() }}</span>
+                                {% if job.featured %}
+                                    <span class="featured-badge">Featured</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="job-save-btn">
+                            <button class="save-job-btn" data-job-id="{{ job.id }}">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="job-company-section">
+                        <div class="company-info">
+                            <h4 class="company-name">{{ job.company }}</h4>
+                            <div class="company-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ job.location or 'Remote' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if job.salary_min and job.salary_max %}
+                        <div class="job-salary">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>{{ job.salary_currency }} {{ job.salary_min|number_format }} - {{ job.salary_max|number_format }}</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="job-description">
+                        <p class="job-excerpt">{{ job.description[:200] }}{% if job.description|length > 200 %}...{% endif %}</p>
+                    </div>
+
+                    <div class="job-card-footer">
+                        <div class="job-posted-date">
+                            <i class="fas fa-clock"></i>
+                            Posted {{ job.posted_at.strftime('%b %d, %Y') }}
+                        </div>
+                        <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-primary btn-sm">
+                            View Details
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </article>
+            {% else %}
+                <div class="no-jobs">
+                    <div class="no-jobs-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>No jobs found</h3>
+                    <p>Try adjusting your search criteria or check back later for new opportunities.</p>
+                    <div class="no-jobs-actions">
+                        <a href="{{ url_for('jobs') }}" class="btn btn-primary">Clear Search</a>
+                        <a href="{{ url_for('seeker_profile_edit') }}" class="btn btn-outline">Update Profile</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if jobs.pages is defined and jobs.pages > 1 %}
+            <nav class="pagination">
+                {% if jobs.has_prev %}
+                    <a href="?page={{ jobs.prev_num }}{% if request.args.get('q') %}&q={{ request.args.get('q') }}{% endif %}" class="pagination-btn pagination-prev">
+                        <i class="fas fa-chevron-left"></i>
+                        Previous
+                    </a>
+                {% endif %}
+
+                <div class="pagination-numbers">
+                    {% set start_page = [1, jobs.page - 2]|max %}
+                    {% set end_page = [jobs.pages, jobs.page + 2]|min %}
+
+                    {% if start_page > 1 %}
+                        <a href="?page=1{% if request.args.get('q') %}&q={{ request.args.get('q') }}{% endif %}" class="pagination-number">1</a>
+                        {% if start_page > 2 %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                    {% endif %}
+
+                    {% for page_num in range(start_page, end_page + 1) %}
+                        {% if page_num == jobs.page %}
+                            <span class="pagination-number pagination-current">{{ page_num }}</span>
+                        {% else %}
+                            <a href="?page={{ page_num }}{% if request.args.get('q') %}&q={{ request.args.get('q') }}{% endif %}" class="pagination-number">{{ page_num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if end_page < jobs.pages %}
+                        {% if end_page < jobs.pages - 1 %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                        <a href="?page={{ jobs.pages }}{% if request.args.get('q') %}&q={{ request.args.get('q') }}{% endif %}" class="pagination-number">{{ jobs.pages }}</a>
+                    {% endif %}
+                </div>
+
+                {% if jobs.has_next %}
+                    <a href="?page={{ jobs.next_num }}{% if request.args.get('q') %}&q={{ request.args.get('q') }}{% endif %}" class="pagination-btn pagination-next">
+                        Next
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

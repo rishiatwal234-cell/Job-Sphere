@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Saved Jobs - JobSphere{% endblock %}
+
+{% block content %}
+<section class="saved-jobs-section">
+    <div class="container">
+        <h1>Saved Jobs</h1>
+
+        {% if saved_jobs %}
+            <div class="jobs-grid">
+                {% for saved_job in saved_jobs %}
+                    <div class="job-card">
+                        <div class="job-header">
+                            <div class="company-logo">
+                                {% if saved_job.job.employer.employer_profile.logo_url %}
+                                    <img src="{{ url_for('uploaded_file', filename=saved_job.job.employer.employer_profile.logo_url) }}" alt="{{ saved_job.job.company }}">
+                                {% else %}
+                                    <div class="logo-placeholder">{{ saved_job.job.company[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="job-info">
+                                <h3><a href="{{ url_for('job_detail', job_id=saved_job.job_id) }}">{{ saved_job.job.title }}</a></h3>
+                                <p class="company">{{ saved_job.job.company }}</p>
+                                <div class="job-meta">
+                                    <span class="location">{{ saved_job.job.location or 'Remote' }}</span>
+                                    <span class="type">{{ saved_job.job.job_type.replace('-', ' ').title() }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="job-footer">
+                            {% if saved_job.job.salary_min and saved_job.job.salary_max %}
+                                <span class="salary">{{ saved_job.job.salary_currency }} {{ saved_job.job.salary_min|number_format }} - {{ saved_job.job.salary_max|number_format }}</span>
+                            {% endif %}
+                            <span class="posted">Saved {{ saved_job.saved_at.strftime('%b %d') }}</span>
+                        </div>
+                        <div class="job-actions">
+                            <a href="{{ url_for('job_detail', job_id=saved_job.job_id) }}" class="btn btn-sm">View</a>
+                            <a href="{{ url_for('apply_job', job_id=saved_job.job_id) }}" class="btn btn-primary btn-sm">Apply</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>You haven't saved any jobs yet.</p>
+                <a href="{{ url_for('jobs') }}" class="btn btn-primary">Browse Jobs</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

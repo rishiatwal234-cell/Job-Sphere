@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Applications for {{ job.title }} - JobSphere{% endblock %}
+
+{% block content %}
+<section class="applications-review-section">
+    <div class="container">
+        <h1>Applications for {{ job.title }}</h1>
+
+        {% if applications %}
+            <div class="applications-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Candidate</th>
+                            <th>Status</th>
+                            <th>Applied</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td>
+                                <strong>{{ app.seeker.name }}</strong>
+                                <br><small>{{ app.seeker.email }}</small>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ app.status }}">{{ app.status.title() }}</span>
+                            </td>
+                            <td>{{ app.applied_at.strftime('%b %d, %Y') }}</td>
+                            <td>
+                                {% if app.employer_note %}
+                                    <small>{{ app.employer_note[:50] }}...</small>
+                                {% else %}
+                                    <small class="text-muted">No notes</small>
+                                {% endif %}
+                            </td>
+                            <td class="action-buttons">
+                                <a href="{{ url_for('view_application', app_id=app.id) }}" class="btn btn-sm">View</a>
+                                <button class="btn btn-sm change-status" data-app-id="{{ app.id }}">Update</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>No applications yet for this job.</p>
+                <a href="{{ url_for('employer_jobs') }}" class="btn btn-outline">Back to Jobs</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

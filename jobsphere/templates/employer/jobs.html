@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}My Jobs - JobSphere{% endblock %}
+
+{% block content %}
+<section class="employer-jobs-section">
+    <div class="container">
+        <div class="page-header">
+            <h1>Your Job Postings</h1>
+            <a href="{{ url_for('post_job') }}" class="btn btn-primary">Post New Job</a>
+        </div>
+
+        {% if jobs %}
+            <div class="jobs-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Job Title</th>
+                            <th>Status</th>
+                            <th>Applications</th>
+                            <th>Views</th>
+                            <th>Posted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in jobs %}
+                        <tr>
+                            <td>
+                                <strong><a href="{{ url_for('job_detail', job_id=job.id) }}">{{ job.title }}</a></strong>
+                                <br><small>{{ job.location or 'Remote' }}</small>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ job.status }}">{{ job.status.title() }}</span>
+                            </td>
+                            <td>{{ job.applications|length }}</td>
+                            <td>{{ job.views_count }}</td>
+                            <td>{{ job.posted_at.strftime('%b %d, %Y') }}</td>
+                            <td class="action-buttons">
+                                <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-sm">View</a>
+                                <a href="{{ url_for('edit_job', job_id=job.id) }}" class="btn btn-sm">Edit</a>
+                                <a href="{{ url_for('employer_applications', job_id=job.id) }}" class="btn btn-sm">Apps</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>You haven't posted any jobs yet.</p>
+                <a href="{{ url_for('post_job') }}" class="btn btn-primary">Post Your First Job</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

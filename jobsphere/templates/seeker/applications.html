@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}My Applications - JobSphere{% endblock %}
+
+{% block content %}
+<section class="applications-section">
+    <div class="container">
+        <h1>My Applications</h1>
+
+        {% if applications %}
+            <div class="applications-kanban">
+                <div class="kanban-column">
+                    <h3>Applied</h3>
+                    <div class="application-cards">
+                        {% for app in applications if app.status == 'applied' %}
+                            <div class="application-card">
+                                <h4><a href="{{ url_for('job_detail', job_id=app.job_id) }}">{{ app.job.title }}</a></h4>
+                                <p class="company">{{ app.job.company }}</p>
+                                <p class="date">Applied {{ app.applied_at.strftime('%b %d') }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="kanban-column">
+                    <h3>Shortlisted</h3>
+                    <div class="application-cards">
+                        {% for app in applications if app.status == 'shortlisted' %}
+                            <div class="application-card highlight">
+                                <h4><a href="{{ url_for('job_detail', job_id=app.job_id) }}">{{ app.job.title }}</a></h4>
+                                <p class="company">{{ app.job.company }}</p>
+                                <p class="date">Updated {{ app.updated_at.strftime('%b %d') }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="kanban-column">
+                    <h3>Hired</h3>
+                    <div class="application-cards">
+                        {% for app in applications if app.status == 'hired' %}
+                            <div class="application-card success">
+                                <h4><a href="{{ url_for('job_detail', job_id=app.job_id) }}">{{ app.job.title }}</a></h4>
+                                <p class="company">{{ app.job.company }}</p>
+                                <p class="date">Congratulations!</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="kanban-column">
+                    <h3>Rejected</h3>
+                    <div class="application-cards">
+                        {% for app in applications if app.status == 'rejected' %}
+                            <div class="application-card rejected">
+                                <h4><a href="{{ url_for('job_detail', job_id=app.job_id) }}">{{ app.job.title }}</a></h4>
+                                <p class="company">{{ app.job.company }}</p>
+                                <p class="date">{{ app.updated_at.strftime('%b %d') }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>You haven't applied to any jobs yet.</p>
+                <a href="{{ url_for('jobs') }}" class="btn btn-primary">Start Exploring</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

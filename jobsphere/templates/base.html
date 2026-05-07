@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}JobSphere - Your world of opportunities{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body data-theme="{% if session.get('theme') %}{{ session['theme'] }}{% else %}light{% endif %}">
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-logo">
+                <span class="logo-text">JobSphere</span>
+            </a>
+
+            <div class="nav-links">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'seeker' %}
+                        <a href="{{ url_for('jobs') }}">Browse Jobs</a>
+                        <a href="{{ url_for('seeker_applications') }}">My Applications</a>
+                        <a href="{{ url_for('seeker_dashboard') }}">Dashboard</a>
+                    {% else %}
+                        <a href="{{ url_for('employer_dashboard') }}">Dashboard</a>
+                        <a href="{{ url_for('employer_jobs') }}">My Jobs</a>
+                        <a href="{{ url_for('post_job') }}">Post Job</a>
+                    {% endif %}
+                    <a href="{{ url_for('notifications') }}" class="notifications-link">
+                        <i data-lucide="bell"></i>
+                        {% if unread_notifications > 0 %}
+                            <span class="notification-badge">{{ unread_notifications }}</span>
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('jobs') }}">Browse Jobs</a>
+                    <a href="{{ url_for('register') }}">Join Now</a>
+                    <a href="{{ url_for('login') }}">Sign In</a>
+                {% endif %}
+            </div>
+
+            <div class="nav-user">
+                {% if current_user.is_authenticated %}
+                    <div class="user-menu">
+                        <img src="{% if current_user.avatar_url %}{{ url_for('uploaded_file', filename=current_user.avatar_url) }}{% else %}https://via.placeholder.com/40x40?text={{ current_user.name[0] }}{% endif %}" alt="Avatar" class="user-avatar">
+                        <span>{{ current_user.name }}</span>
+                        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+                    </div>
+                {% endif %}
+                <button id="theme-toggle" aria-label="Switch theme">
+                    <i data-lucide="{% if session.get('theme') == 'dark' %}sun{% else %}moon{% endif %}"></i>
+                </button>
+            </div>
+
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+
+        <div class="mobile-menu">
+            {% if current_user.is_authenticated %}
+                {% if current_user.role == 'seeker' %}
+                    <a href="{{ url_for('jobs') }}">Browse Jobs</a>
+                    <a href="{{ url_for('seeker_applications') }}">My Applications</a>
+                    <a href="{{ url_for('seeker_dashboard') }}">Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('employer_dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('employer_jobs') }}">My Jobs</a>
+                    <a href="{{ url_for('post_job') }}">Post Job</a>
+                {% endif %}
+                <a href="{{ url_for('notifications') }}">Notifications</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('jobs') }}">Browse Jobs</a>
+                <a href="{{ url_for('register') }}">Join Now</a>
+                <a href="{{ url_for('login') }}">Sign In</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>JobSphere</h3>
+                <p>Your world of opportunities.</p>
+            </div>
+            <div class="footer-section">
+                <h4>For Job Seekers</h4>
+                <a href="{{ url_for('jobs') }}">Browse Jobs</a>
+                <a href="{{ url_for('register') }}">Create Account</a>
+            </div>
+            <div class="footer-section">
+                <h4>For Employers</h4>
+                <a href="{{ url_for('post_job') }}">Post a Job</a>
+                <a href="{{ url_for('register') }}">Join as Employer</a>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="LinkedIn"><i data-lucide="linkedin"></i></a>
+                    <a href="#" aria-label="Twitter"><i data-lucide="twitter"></i></a>
+                    <a href="#" aria-label="Facebook"><i data-lucide="facebook"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 JobSphere. Made with <i data-lucide="heart"></i> for your future.</p>
+        </div>
+    </footer>
+
+    <div id="toast-container"></div>
+
+    <!-- Weather Control Panel -->
+    <div class="weather-control-panel">
+        <button class="weather-menu-toggle" id="weather-menu-toggle" aria-label="Weather menu">
+            <i data-lucide="cloud"></i>
+        </button>
+        <div class="weather-menu" id="weather-menu">
+            <button class="weather-btn" data-weather="none">
+                <i data-lucide="x"></i>
+                <span>Clear</span>
+            </button>
+            <button class="weather-btn" data-weather="rain">
+                <i data-lucide="cloud-rain"></i>
+                <span>Rain</span>
+            </button>
+            <button class="weather-btn" data-weather="snow">
+                <i data-lucide="cloud-snow"></i>
+                <span>Snow</span>
+            </button>
+            <button class="weather-btn" data-weather="sun">
+                <i data-lucide="sun"></i>
+                <span>Sunny</span>
+            </button>
+            <button class="weather-btn" data-weather="pollen">
+                <i data-lucide="flower-2"></i>
+                <span>Pollen</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/weather.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+    {% block scripts %}{% endblock %}
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

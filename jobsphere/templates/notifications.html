@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - JobSphere{% endblock %}
+
+{% block content %}
+<section class="notifications-page">
+    <div class="container">
+        <h1>Notifications</h1>
+
+        {% if notifications %}
+            <div class="notifications-list">
+                {% for notification in notifications %}
+                    <div class="notification-item {% if not notification.is_read %}unread{% endif %}" data-id="{{ notification.id }}">
+                        <div class="notification-icon">
+                            {% if notification.type == 'application' %}
+                                📋
+                            {% elif notification.type == 'status' %}
+                                🔄
+                            {% else %}
+                                🔔
+                            {% endif %}
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-message">{{ notification.message }}</p>
+                            <div class="notification-meta">
+                                <span class="notification-type">{{ notification.type|title }}</span>
+                                <span class="notification-time">{{ notification.created_at.strftime('%b %d, %Y %I:%M %p') }}</span>
+                            </div>
+                        </div>
+                        {% if notification.link %}
+                            <div class="notification-actions">
+                                <a href="{{ notification.link }}" class="btn btn-sm btn-outline">View</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="notifications-actions">
+                <button id="mark-all-read" class="btn btn-secondary">Mark All as Read</button>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">🔔</div>
+                <h2>No notifications yet</h2>
+                <p>You'll receive notifications about job applications, status updates, and other important activities here.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mark all notifications as read
+    const markAllReadBtn = document.getElementById('mark-all-read');
+    if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', function() {
+            fetch('/notifications/mark-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI to show all notifications as read
+                    document.querySelectorAll('.notification-item.unread').forEach(item => {
+                        item.classList.remove('unread');
+                    });
+                    markAllReadBtn.style.display = 'none';
+
+                    // Update notification count in navbar
+                    const notificationBadge = document.querySelector('.notification-badge');
+                    if (notificationBadge) {
+                        notificationBadge.textContent = '0';
+                        notificationBadge.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error marking notifications as read:', error);
+                showToast('Error updating notifications', 'danger');
+            });
+        });
+    }
+
+    // Auto-mark individual notifications as read when viewed
+    document.querySelectorAll('.notification-item.unread').forEach(item => {
+        const viewLink = item.querySelector('.btn-outline');
+        if (viewLink) {
+            viewLink.addEventListener('click', function() {
+                item.classList.remove('unread');
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

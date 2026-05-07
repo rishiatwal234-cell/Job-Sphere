@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}JobSphere - Find Your Dream Job{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <canvas id="stars-canvas" class="stars-canvas"></canvas>
+    <div class="hero-content">
+        <h1 id="typewriter">Find your dream job.</h1>
+        <p class="hero-subtitle">Your journey to the perfect career starts here. Discover opportunities that match your passion and skills.</p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('jobs') }}" class="btn btn-primary">Browse Jobs</a>
+            <a href="{{ url_for('register') }}" class="btn btn-secondary">Join JobSphere</a>
+        </div>
+    </div>
+    <div class="hero-bg">
+        <div class="aurora-blob blob-1"></div>
+        <div class="aurora-blob blob-2"></div>
+    </div>
+</section>
+
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number" data-target="1200">0</div>
+                <div class="stat-label">Jobs Posted</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="500">0</div>
+                <div class="stat-label">Companies</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="3400">0</div>
+                <div class="stat-label">Careers Launched</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="featured-jobs">
+    <div class="container">
+        <h2>Latest Opportunities</h2>
+        <div class="jobs-grid">
+            {% for job in featured_jobs %}
+            <div class="job-card">
+                <div class="job-header">
+                    <div class="company-logo">
+                        {% if job.employer.employer_profile.logo_url %}
+                            <img src="{{ url_for('uploaded_file', filename=job.employer.employer_profile.logo_url) }}" alt="{{ job.company }}">
+                        {% else %}
+                            <div class="logo-placeholder">{{ job.company[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="job-info">
+                        <h3><a href="{{ url_for('job_detail', job_id=job.id) }}">{{ job.title }}</a></h3>
+                        <p class="company">{{ job.company }}</p>
+                        <div class="job-meta">
+                            <span class="location">{{ job.location or 'Remote' }}</span>
+                            <span class="type">{{ job.job_type.replace('-', ' ').title() }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="job-footer">
+                    {% if job.salary_min and job.salary_max %}
+                        <span class="salary">{{ job.salary_currency }} {{ job.salary_min|number_format }} - {{ job.salary_max|number_format }}</span>
+                    {% endif %}
+                    <span class="posted">{{ job.posted_at.strftime('%b %d') }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="section-actions">
+            <a href="{{ url_for('jobs') }}" class="btn btn-outline">View All Jobs</a>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <div class="container">
+        <h2>How JobSphere Works</h2>
+        <div class="steps-grid">
+            <div class="step">
+                <div class="step-icon">
+                    <i data-lucide="search"></i>
+                </div>
+                <h3>Discover</h3>
+                <p>Browse thousands of job opportunities that match your skills and interests.</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">
+                    <i data-lucide="send"></i>
+                </div>
+                <h3>Apply</h3>
+                <p>Submit your application with a personalized cover letter and resume.</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">
+                    <i data-lucide="check-circle"></i>
+                </div>
+                <h3>Succeed</h3>
+                <p>Get hired and start your next chapter in an amazing new role.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="testimonials">
+    <div class="container">
+        <h2>Success Stories</h2>
+        <div class="testimonial-grid">
+            <div class="testimonial">
+                <div class="testimonial-content">
+                    <p>"JobSphere helped me find my dream job in just two weeks. The platform is intuitive and the matches are spot-on."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">A</div>
+                        <div class="author-info">
+                            <strong>Alex Chen</strong>
+                            <span>Software Engineer at TechCorp</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-content">
+                    <p>"As an employer, JobSphere made it easy to find qualified candidates. The quality of applicants is outstanding."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">M</div>
+                        <div class="author-info">
+                            <strong>Maria Rodriguez</strong>
+                            <span>HR Manager at Innovate Solutions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-content">
+                    <p>"The application process was smooth and professional. I felt supported every step of the way."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">J</div>
+                        <div class="author-info">
+                            <strong>James Wilson</strong>
+                            <span>Marketing Coordinator</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/stars.js') }}"></script>
+<script src="{{ url_for('static', filename='js/nature.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+<script>
+    // Typewriter effect
+    const typewriterElement = document.getElementById('typewriter');
+    const phrases = ["Find your dream job.", "Start your next chapter.", "Opportunities await you."];
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    function typeWriter() {
+        const currentPhrase = phrases[phraseIndex];
+        
+        if (isDeleting) {
+            typewriterElement.textContent = currentPhrase.substring(0, charIndex - 1);
+            charIndex--;
+        } else {
+            typewriterElement.textContent = currentPhrase.substring(0, charIndex + 1);
+            charIndex++;
+        }
+
+        if (!isDeleting && charIndex === currentPhrase.length) {
+            setTimeout(() => isDeleting = true, 2000);
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+        }
+
+        const speed = isDeleting ? 50 : 100;
+        setTimeout(typeWriter, speed);
+    }
+
+    typeWriter();
+
+    // Counter animation
+    function animateCounters() {
+        const counters = document.querySelectorAll('.stat-number');
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const increment = target / 100;
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += increment;
+                counter.textContent = Math.floor(current).toLocaleString() + '+';
+                if (current >= target) {
+                    counter.textContent = target.toLocaleString() + '+';
+                    clearInterval(timer);
+                }
+            }, 20);
+        });
+    }
+
+    // Trigger counters when stats section is visible
+    const statsSection = document.querySelector('.stats-section');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    observer.observe(statsSection);
+</script>
+{% endblock %}
